@@ -1,0 +1,19 @@
+<!-- tasks/templates/tasks/task_confirm_delete.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Delete Task</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Delete Task</h1>
+        <p>Are you sure you want to delete the task "<strong>{{ task.title }}</strong>"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a href="{% url 'task_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

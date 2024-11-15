@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if task %}Edit Task{% else %}Create New Task{% endif %}</title>
+
+    <!-- Google Fonts (Merriweather & Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #f06, #48c6ef);
+            color: #333;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 0 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #f06;
+            transform: scale(1.1);
+        }
+
+        /* Container for Main Content */
+        .container {
+            width: 70%;
+            margin: 30px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Title Styling */
+        h1 {
+            font-family: 'Merriweather', serif;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Floating Labels */
+        .form-group {
+            position: relative;
+            margin-bottom: 25px; /* Adjusted spacing */
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: border 0.3s ease;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 10px; /* Added margin to separate input fields from labels */
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #f06;
+            outline: none;
+        }
+
+        label {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            transition: 0.3s;
+            color: #aaa;
+            font-size: 16px;
+            pointer-events: none; /* Prevents label from overlapping with input text */
+            line-height: 1.5; /* Ensures label does not overlap */
+        }
+
+        input:focus + label,
+        select:focus + label,
+        textarea:focus + label,
+        input:not(:focus):valid + label,
+        select:not(:focus):valid + label,
+        textarea:not(:focus):valid + label {
+            top: -10px;
+            left: 15px;
+            color: #f06;
+            font-size: 12px;
+        }
+
+        /* Button Styling */
+        button {
+            background: #f06;
+            color: white;
+            font-size: 18px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            margin-top: 20px; /* Added margin for spacing between form and button */
+        }
+
+        button:hover {
+            background-color: #48c6ef;
+            transform: scale(1.05);
+        }
+
+        /* Cancel Button Styling */
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Success/Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f06;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="{% url 'task_list' %}">Home</a>
+        <a href="{% url 'task_create' %}">{% if task %}Edit Task{% else %}Create New Task{% endif %}</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>{% if task %}Edit Task{% else %}Create New Task{% endif %}</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <input type="text" id="title" name="title" value="{{ task.title|default:'' }}" required>
+                <label for="title">Task Title:</label>
+            </div>
+
+            <div class="form-group">
+                <textarea id="description" name="description" required>{{ task.description|default:'' }}</textarea>
+                <label for="description">Task Description:</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" id="due_date" name="due_date" value="{{ task.due_date|default:'' }}" required>
+                <label for="due_date">Due Date:</label>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" required>
+                    <option value= 'Low' {% if task and task.priority == 'Low' %}selected{% endif %}>Low</option>
+                    <option value= 'Medium' {% if task and task.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value= 'High'  {% if task and task.priority == 'High' %}selected{% endif %}>High</option>
+                </select>
+            </div>
+            
+
+            <div class="form-group">
+                <input type="checkbox" id="completed" name="completed" {% if task.completed %}checked{% endif %}>
+                <label for="completed">Completed:</label>
+            </div>
+
+            <button type="submit">
+                {% if task %}Update Task{% else %}Save Task{% endif %}
+            </button>
+        </form>
+
+        <br>
+        <a href="{% url 'task_list' %}" class="cancel-btn">
+            Cancel
+        </a>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner"></div>
+    </div>
+
+</body>
+</html>
